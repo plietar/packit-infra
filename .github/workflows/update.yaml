@@ -42,8 +42,11 @@ jobs:
         with:
           branch: actions/update-packages
           title: Update packages
-          commit-message: ${{ steps.message.outputs.body }}
           body: ${{ steps.message.outputs.body }}
+          commit-message: |
+            Update packages
+
+            ${{ steps.message.outputs.body }}
           reviewers: plietar
 
       - name: Comment

@@ -1,0 +1,49 @@
+name: Update packages
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Update outpack_server
+        run: nix run .#update outpack_server -- --commit-log ${{ runner.temp }}/outpack_server.md
+      - name: Update packit
+        run: nix run .#update packit -- --commit-log ${{ runner.temp }}/packit.md
+
+      - name: Prepare PR message
+        run: |
+          touch ${{ runner.temp }}/message.md
+          if [[ -f ${{ runner.temp }}/outpack_server.md ]]; then
+            echo "# Updating outpack_server" >> ${{ runner.temp }}/message.md
+            cat ${{ runner.temp }}/outpack_server.md >> ${{ runner.temp }}/message.md
+          fi
+          if [[ -f ${{ runner.temp }}/packit.md ]]; then
+            echo "# Updating Packit" >> ${{ runner.temp }}/message.md
+            cat ${{ runner.temp }}/packit.md >> ${{ runner.temp }}/message.md
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        id: create-pr
+        with:
+          branch: actions/update-packages
+          title: Update packages
+          body-path: ${{ runner.temp }}/message.md
+          reviewers: plietar
+
+      - name: Comment hint
+        if: ${{ steps.create-pr.outputs.pull-request-operation }} == "created" 
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"

@@ -27,14 +27,18 @@ jobs:
         with:
           script: |
             const fs = require("fs");
+            const lf = new Intl.ListFormat('en');
+
+            var packages = [];
             var message = "";
             for (const p of ["outpack_server", "packit"]) {
               if (fs.existsSync(`${process.env.RUNNER_TEMP}/${p}.md`)) {
                 message += `# Updating ${p}\n`;
                 message += fs.readSync(`${process.env.RUNNER_TEMP}/${p}.md`);
+                packages += [p];
               }
             }
-            core.setOutput('title', "Update packages");
+            core.setOutput('title', "Update " + lf.format(packages));
             core.setOutput('body', message);
 
       - name: Create Pull Request

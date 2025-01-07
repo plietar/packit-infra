@@ -49,7 +49,7 @@ jobs:
                 var sources = JSON.parse(fs.readFileSync(`packages/${p}/sources.json`));
                 message += `# Updating ${p} to ${sources.src.rev}\n`;
                 message += fs.readFileSync(`${process.env.RUNNER_TEMP}/${p}.md`);
-                packages += [p];
+                packages.push(p);
               }
             }
             core.setOutput('title', "Update " + lf.format(packages));

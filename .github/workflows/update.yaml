@@ -22,6 +22,7 @@ jobs:
         run: nix run .#update packit -- --commit-log ${{ runner.temp }}/packit.md
 
       - name: Prepare PR message
+        id: prepare-message
         run: |
           {
             echo 'body<<EOF'
@@ -34,7 +35,7 @@ jobs:
               cat ${{ runner.temp }}/packit.md
             fi
             echo EOF
-          } >> "$GITHUB_ENV"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -42,11 +43,11 @@ jobs:
         with:
           branch: actions/update-packages
           title: Update packages
-          body: ${{ steps.message.outputs.body }}
+          body: ${{ steps.prepare-message.outputs.body }}
           commit-message: |
             Update packages
 
-            ${{ steps.message.outputs.body }}
+            ${{ steps.prepare-message.outputs.body }}
           reviewers: plietar
 
       - name: Comment

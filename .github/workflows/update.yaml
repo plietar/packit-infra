@@ -26,14 +26,13 @@ jobs:
         id: prepare-message
         with:
           script: |
+            const fs = require("fs");
             var message = "";
-            if (fs.existsSync("${{ runner.temp }}/outpack_server.md")) {
-              message += "# Updating outpack_server\n";
-              message += fs.readSync("${{ runner.temp }}/outpack_server.md");
-            }
-            if (fs.existsSync("${{ runner.temp }}/packit.md")) {
-              message += "# Updating packit\n";
-              message += fs.readSync("${{ runner.temp }}/packit.md");
+            for (const p of ["outpack_server", "packit"]) {
+              if (fs.existsSync(`${process.env.RUNNER_TEMP}/${p}.md`)) {
+                message += `# Updating ${p}\n`;
+                message += fs.readSync(`${process.env.RUNNER_TEMP}/${p}.md`);
+              }
             }
             core.setOutput('title', "Update packages");
             core.setOutput('body', message);

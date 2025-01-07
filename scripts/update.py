@@ -175,8 +175,8 @@ def update(args):
         print(f"Updating {args.name} from {metadata['rev']} to {rev}")
         messages = commit_log(args.owner, args.repo, metadata["rev"], rev)
 
-        if args.commit_log is not None:
-            f = open(args.commit_log, "w")
+        if args.write_commit_log is not None:
+            f = open(args.write_commit_log, "w")
         else:
             nullcontext(sys.stdout)
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         default="HEAD")
     parser.add_argument("--output", help="File in which to write the result.")
     parser.add_argument(
-        "--commit-log",
+        "--write-commit-log",
         help="File in which to write the commit log."
     )
     parser.add_argument(

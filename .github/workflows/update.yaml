@@ -22,30 +22,31 @@ jobs:
         run: nix run .#update packit -- --commit-log ${{ runner.temp }}/packit.md
 
       - name: Prepare PR message
+        uses: actions/github-script@v7
         id: prepare-message
-        run: |
-          {
-            echo 'body<<EOF'
-            if [[ -f ${{ runner.temp }}/outpack_server.md ]]; then
-              echo "# Updating outpack_server"
-              cat ${{ runner.temp }}/outpack_server.md
-            fi
-            if [[ -f ${{ runner.temp }}/packit.md ]]; then
-              echo "# Updating Packit"
-              cat ${{ runner.temp }}/packit.md
-            fi
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+        with:
+          script: |
+            var message = "";
+            if (fs.existsSync("${{ runner.temp }}/outpack_server.md")) {
+              message += "# Updating outpack_server\n";
+              message += fs.readSync("${{ runner.temp }}/outpack_server.md");
+            }
+            if (fs.existsSync("${{ runner.temp }}/packit.md")) {
+              message += "# Updating packit\n";
+              message += fs.readSync("${{ runner.temp }}/packit.md");
+            }
+            core.setOutput('title', "Update packages");
+            core.setOutput('body', message);
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         id: create-pr
         with:
           branch: actions/update-packages
-          title: Update packages
+          title: ${{ steps.prepare-message.outputs.title }}
           body: ${{ steps.prepare-message.outputs.body }}
           commit-message: |
-            Update packages
+            ${{ steps.prepare-message.outputs.title }}
 
             ${{ steps.prepare-message.outputs.body }}
           reviewers: plietar

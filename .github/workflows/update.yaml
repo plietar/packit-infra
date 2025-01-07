@@ -33,8 +33,9 @@ jobs:
             var message = "";
             for (const p of ["outpack_server", "packit"]) {
               if (fs.existsSync(`${process.env.RUNNER_TEMP}/${p}.md`)) {
-                message += `# Updating ${p}\n`;
-                message += fs.readSync(`${process.env.RUNNER_TEMP}/${p}.md`);
+                var sources = JSON.parse(fs.readFileSync(`packages/${p}/sources.json`));
+                message += `# Updating ${p} to ${sources.src.srv}\n`;
+                message += fs.readFileSync(`${process.env.RUNNER_TEMP}/${p}.md`);
                 packages += [p];
               }
             }

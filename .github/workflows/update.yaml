@@ -2,7 +2,20 @@ name: Update packages
 on:
   schedule:
     - cron: '0 0 * * *' # Daily at midnight UTC
+
   workflow_dispatch:
+    inputs:
+      outpack_server:
+        description: 'Git ref from which to update outpack_server'
+        type: string
+        required: true
+        default: 'HEAD'
+
+      packit:
+        description: 'Git ref from which to update Packit'
+        type: string
+        required: true
+        default: 'HEAD'
 
 jobs:
   update:
